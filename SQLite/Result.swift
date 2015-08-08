@@ -12,6 +12,7 @@ import Foundation
 public enum Result: ErrorType {
     case Code(Int32)
     case CodeAndErrorMessage(Int32, String?)
+    case Error(String)
     
     public var errorString: String {
         switch self {
@@ -22,6 +23,8 @@ public enum Result: ErrorType {
             }
         case let CodeAndErrorMessage(_, errorMessage):
             guard let errorMessage = errorMessage else { break }
+            return errorMessage
+        case let Error(errorMessage):
             return errorMessage
         }
         return String()

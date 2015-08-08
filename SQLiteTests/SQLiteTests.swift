@@ -38,12 +38,16 @@ class SQLiteTests: XCTestCase {
         let db = Database()
         do {
             try db.open(":memory:")
-            try db.exec("create table tbl1(one varchar(10), two smallint)")
-            try db.exec("insert into tbl1(one, two) values ('a', 'b')")
-            try db.exec("select * from tbl1") {
+            try db.execute("create table table1(column1 varchar(10), column2 smallint)")
+            try db.execute("insert into table1(column1, column2) values ('value1', 'value2')")
+            try db.execute("select * from table1; select 123 as constValue") {
                 columnText, columnNames in
+                print("columnNames: \(columnNames)")
+                print("columnText: \(columnText)")
                 return true
             }
+            let statement = try db.prepare("select * from table1")
+            try statement.finalize()
             try db.close()
         } catch {
             XCTFail("\(error)")

@@ -27,7 +27,7 @@ public class StringArray {
         return String.fromCStringRepairingIllFormedUTF8(array[index]).0 ?? String()
     }
     
-    func toArray() -> [String] {
+    public func toArray() -> [String] {
         var result = [String]()
         result.reserveCapacity(count)
         for var i = 0; i < count; ++i {
@@ -35,5 +35,11 @@ public class StringArray {
             result.append(string)
         }
         return result
+    }
+}
+
+extension StringArray: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        return "\(toArray())"
     }
 }

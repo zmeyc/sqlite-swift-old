@@ -15,6 +15,7 @@ public class Database {
     typealias sqlite3 = COpaquePointer
     
     var db: sqlite3 = nil
+    var statements = Set<COpaquePointer>()
     
     public func open(filename: String) throws {
         let result = sqlite3_open(/* filename */ filename, /* ppDb */ &db)
@@ -24,16 +25,19 @@ public class Database {
     }
     
     public func close() throws {
+        guard statements.isEmpty else {
+            throw Result.Error("Unable to close database: \(statements.count) prepared statement(s) still exist")
+        }
         let result = sqlite3_close(db)
         guard result == SQLITE_OK else {
             throw Result.Code(result)
         }
+        db = nil
     }
 
-    public func exec(sql: String) throws {
+    public func execute(sql: String) throws {
         var errmsg: UnsafeMutablePointer<Int8> = nil
-        let result: Int32
-        result = sqlite3_exec(db, sql, nil, nil, &errmsg)
+        let result = sqlite3_exec(db, sql, nil, nil, &errmsg)
         
         guard result == SQLITE_OK else {
             if let errorMessage = String.fromCStringRepairingIllFormedUTF8(errmsg).0 {
@@ -44,13 +48,13 @@ public class Database {
         }
     }
     
-    public func exec(sql: String, callback: ExecCallback) throws {
+    public func execute(sql: String, callback: ExecCallback) throws {
         var errmsg: UnsafeMutablePointer<Int8> = nil
-        let result: Int32
         var c = callback
         let context = withUnsafePointer(&c) { ptr in
-            return unsafeBitCast(ptr, UnsafeMutablePointer<Void>.self) }
-        result = sqlite3_exec(db, sql,
+            return unsafeBitCast(ptr, UnsafeMutablePointer<Void>.self)
+        }
+        let result = sqlite3_exec(db, sql,
             { context, columnCount, columnText, columnNames in
                 let callback = unsafeBitCast(context, UnsafePointer<ExecCallback>.self).memory
                 let columnTextArray = StringArray(count: Int(columnCount), array: columnText)
@@ -68,8 +72,20 @@ public class Database {
         }
     }
     
+    public func prepare(sql: String) throws -> Statement {
+        var statement: COpaquePointer = nil
+        let result = sqlite3_prepare_v2(db, sql, -1, &statement, nil)
+        guard result == SQLITE_OK else {
+            throw Result.Code(result)
+        }
+        statements.insert(statement)
+        return Statement(statement: statement, db: self)
+    }
+    
     deinit {
-        sqlite3_close(db)
+        if SQLITE_OK != sqlite3_close(db) {
+            assertionFailure("Unable to close the database")
+        }
     }
     
 }
