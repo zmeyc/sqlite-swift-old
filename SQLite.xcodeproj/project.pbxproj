@@ -143,6 +143,7 @@
 				CE89BBE11B7186680076BEB4 /* Frameworks */,
 				CE89BBE21B7186680076BEB4 /* Headers */,
 				CE89BBE31B7186680076BEB4 /* Resources */,
+				CE2D91811B7783C400E8D523 /* Amalgamate Sources (for use in console projects) */,
 			);
 			buildRules = (
 			);
@@ -223,6 +224,25 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		CE2D91811B7783C400E8D523 /* Amalgamate Sources (for use in console projects) */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(TARGET_BUILD_DIR)/$(PRODUCT_NAME).framework",
+			);
+			name = "Amalgamate Sources (for use in console projects)";
+			outputPaths = (
+				./SQLite.swift,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = ./amalgamate.swift;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		CE89BBE01B7186680076BEB4 /* Sources */ = {
