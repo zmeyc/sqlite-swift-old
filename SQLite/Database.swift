@@ -64,6 +64,9 @@ public class Database {
             }, context, &errmsg)
         
         guard result == SQLITE_OK else {
+            defer {
+                sqlite3_free(errmsg)
+            }
             if let errorMessage = String.fromCStringRepairingIllFormedUTF8(errmsg).0 {
                 throw Result.CodeAndErrorMessage(result, errorMessage)
             } else {
