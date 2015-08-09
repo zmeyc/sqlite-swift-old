@@ -53,4 +53,40 @@ class SQLiteTests: XCTestCase {
             XCTFail("\(error)")
         }
     }
+    
+    func testVersioning() {
+        let db = Database()
+        do {
+            try db.open(":memory:")
+            try db.execute("pragma user_version = 5")
+            try db.execute("pragma user_version") {
+                columnText, columnNames in
+                print("columnNames: \(columnNames)")
+                print("columnText: \(columnText)")
+                return true
+            }
+        } catch {
+            XCTFail("\(error)")
+        }
+    }
+    
+    func testStatements() {
+        let db = Database()
+        do {
+            try db.open(":memory:")
+            try db.prepare("create table table1(column1 varchar(100))").step()
+
+            let insertStatement = try db.prepare("insert into table1(column1) values ('value1')")
+            for _ in 0..<3 {
+                try insertStatement.step()
+            }
+
+            let selectStatement = try db.prepare("select * from table1")
+            while try selectStatement.step() {
+                
+            }
+        } catch {
+            XCTFail("\(error)")
+        }
+    }
 }
