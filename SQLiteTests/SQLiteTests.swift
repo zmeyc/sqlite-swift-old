@@ -83,7 +83,7 @@ class SQLiteTests: XCTestCase {
 
             let selectStatement = try db.prepare("select * from table1")
             while try selectStatement.step() {
-                
+                print(selectStatement.stringValue(0))
             }
         } catch {
             XCTFail("\(error)")
